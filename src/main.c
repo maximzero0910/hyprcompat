@@ -2,59 +2,47 @@
 // Created by maxim on 8/27/2026.
 //
 #include <stdio.h>
-typedef enum {
-    TOKEN_EOF,
-    TOKEN_IDENTIFIER,
-    TOKEN_VARIABLE,
-    TOKEN_EQUALS,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-    TOKEN_VALUE,
-    TOKEN_COMMENT
-} TokenType;
-typedef struct {
-    TokenType type;
-    char *text;
-    size_t line;
-    size_t column;
+#include "lexer.h"
+#include <stdio.h>
+#include "lexer.h"
 
-} Token;
+    int main(void)
+    {
+        FILE *file = fopen("hyprland.conf", "r");
 
+        if (file == NULL) {
+            perror("fopen");
+            return 1;
+        }
 
-int main(void) {
-    FILE *file = fopen("hyprland.conf", "r");
-    if (file == NULL) {
-        perror("fopen");
-    }
+        Lexer lexer;
+       lexer_init(&lexer, file);
 
-        char var[100];
-
-        int c;
-        while ((c = fgetc(file)) != EOF) {
-
-            if (c == '$') {
-                int i = 0;
-                var[i++] = '$';
-
-                while (c != ' ' && (c = fgetc(file))  != EOF) {
-
-                    var[i++] = (char)c;
-                }
-                var[i] = '\0';
-                printf(" variable : %s\n", var);
-                for (i = ftell(file) - 1 ; var[i] != '='; i++) {
-                    if (var[i] == '=') {
-                        printf(" found = : %ld\n", ftell(file) - 1);
-                    }
-                }
-            }
+        Token token = lexer_next(&lexer);
+      printf("token = %d\n", token.type);
+        char text[100];
+      token.text = text;
 
 
+        if (token.type == TOKEN_VARIABLE) {
+
+            int i = 0;
+            while (lexer.current != ' ' && lexer.current != EOF && i < sizeof(text) - 1) {
+              printf("cycle %d\n",i + 1);
+               token.text[i] = (char) lexer.current;
+                printf("current char: %c\n",lexer.current);
+
+               advance(&lexer);
+                i++;
+           }
+                token.text[i] = '\0';
+            printf("text = %s", token.text);
 
         }
-            long position = ftell(file) - 1;
-     printf("position : %ld\n", position);
 
-    fclose(file);
 
+
+        fclose(file);
+
+        return 0;
     }
