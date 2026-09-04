@@ -110,17 +110,47 @@ Token lexer_next(Lexer *lexer)
             break;
     }
 }
-int lexer_seek(Lexer *lexer, int offset,int origin) {
-     fseek(lexer->file, offset, origin);
-     lexer->current = fgetc(lexer->file);
-     fseek(lexer->file, -1, SEEK_CUR); // return back to position because fgetc gets one forward
+int lexer_seek(Lexer *lexer, long offset,int origin) {
+     int org_pos = ftell(lexer->file);
      switch (origin) { // do the math to adjust the line and column for lexer
          case SEEK_SET:
+             int column = 0;
+             lexer->column = 0;
              if (offset < 0)
                  return 1;
-             lexer->column = offset;
+             lexer->line = 0;
              for (int i = 0;i<offset;i++) {
-
+                 fgetc(lexer->file);
+                 lexer->column++;
+                 if (lexer->current == '\n') {
+                     lexer->line++;
+                     lexer->column = 0;
+                 }
              }
+             fseek(lexer->file, offset, origin);
+             lexer->current = fgetc(lexer->file);
+             fseek(lexer->file, -1, SEEK_CUR); // return back to position because fgetc gets one forward
+             break;
+             case SEEK_CUR:
+             int    abs_size = org_pos + offset  ;
+             lexer->column = 0;
+
+             for (int i = 0;i<abs_size;i++) {
+                 fgetc(lexer->file);
+                 lexer->column++;
+                 if (lexer->current == '\n') {
+                     lexer->line++;
+                     lexer->column = 0;
+                 }
+             }
+             fseek(lexer->file, offset, origin);
+             lexer->current = fgetc(lexer->file);
+             fseek(lexer->file, -1, SEEK_CUR); // return back to position because fgetc gets one forward
+             break;
+             case SEEK_END:
+             break; // WIP
+
+
+
      }
  }
