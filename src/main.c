@@ -27,7 +27,16 @@
         if (token.type == TOKEN_VARIABLE) {
 
             int i = 0;
-            while (lexer.current != ' ' && lexer.current != EOF && i < sizeof(text) - 1) {
+            fseek(file, 0,SEEK_SET);
+            lexer.current = fgetc(file);
+            token.text[i] = (char) lexer.current;
+
+            }
+        }
+
+         /*while (lexer.current != ' ' && lexer.current != EOF && i < sizeof(text) - 1)
+            {
+
               printf("cycle %d\n",i + 1);
                token.text[i] = (char) lexer.current;
                 printf("current char: %c\n",lexer.current);
@@ -46,3 +55,4 @@
 
         return 0;
     }
+*/
