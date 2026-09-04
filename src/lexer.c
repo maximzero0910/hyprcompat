@@ -110,3 +110,17 @@ Token lexer_next(Lexer *lexer)
             break;
     }
 }
+int lexer_seek(Lexer *lexer, int offset,int origin) {
+     fseek(lexer->file, offset, origin);
+     lexer->current = fgetc(lexer->file);
+     fseek(lexer->file, -1, SEEK_CUR); // return back to position because fgetc gets one forward
+     switch (origin) { // do the math to adjust the line and column for lexer
+         case SEEK_SET:
+             if (offset < 0)
+                 return 1;
+             lexer->column = offset;
+             for (int i = 0;i<offset;i++) {
+
+             }
+     }
+ }
